@@ -2,9 +2,9 @@
 Compiler
 """
 
-import re
 import io
 from bytecode import Bytecode, Instr
+
 
 class Compiler:
     def compile(self, source):
@@ -58,7 +58,6 @@ class Compiler:
                                  Instr("POP_TOP")]
 
             in_literal = not in_literal
-
 
         bytecode = Bytecode(instructions + [Instr("LOAD_CONST", None),
                                             Instr("RETURN_VALUE")])
