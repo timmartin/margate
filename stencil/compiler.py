@@ -9,7 +9,7 @@ from bytecode import Bytecode, Instr
 class Compiler:
     def compile(self, source):
         bytecode = self._make_bytecode(source)
-        
+
         def inner(**local_scope):
             local_scope["_output"] = io.StringIO()
             exec(bytecode, {}, local_scope)
@@ -35,12 +35,12 @@ class Compiler:
                 next_separator = min(next_start, next_end)
                 yield source[:next_separator]
                 source = source[next_separator + 2:]
-    
+
     def _make_bytecode(self, source):
         in_literal = True
         instructions = []
         write_func = io.StringIO.write
-        
+
         for item in self._get_chunks(source):
             if in_literal:
                 instructions += [Instr("LOAD_CONST", write_func),
@@ -59,7 +59,7 @@ class Compiler:
 
             in_literal = not in_literal
 
-                    
+
         bytecode = Bytecode(instructions + [Instr("LOAD_CONST", None),
                                             Instr("RETURN_VALUE")])
         return bytecode.to_code()
