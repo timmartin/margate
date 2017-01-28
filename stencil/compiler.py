@@ -47,7 +47,6 @@ class Compiler:
                     in_literal = not in_literal
                     source = source[next_end + 2:]
 
-
     def _make_bytecode(self, source):
         instructions = []
         symbol_table = {
