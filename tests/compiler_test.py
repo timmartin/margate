@@ -13,7 +13,7 @@ class CompilerTest(unittest.TestCase):
     def test_compile_variable(self):
         compiler = Compiler()
 
-        function = compiler.compile("Hello {% whom %}")
+        function = compiler.compile("Hello {{ whom }}")
         self.assertEquals(function(whom="world"),
                           "Hello world")
 
@@ -21,7 +21,7 @@ class CompilerTest(unittest.TestCase):
         compiler = Compiler()
 
         function = compiler.compile(
-            "Hello {% you %}, I'm {% me %}. Nice to meet you")
+            "Hello {{ you }}, I'm {{ me }}. Nice to meet you")
 
         self.assertEquals(
             function(you="Tim", me="an optimised template"),

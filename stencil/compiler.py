@@ -21,8 +21,8 @@ class Compiler:
         in_literal = True
 
         while True:
-            next_start = source.find('{%')
-            next_end = source.find('%}')
+            next_start = source.find('{{')
+            next_end = source.find('}}')
 
             if (next_start == -1) and (next_end == -1):
                 yield Literal(source)
