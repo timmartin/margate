@@ -2,8 +2,73 @@
 Compiler
 """
 
+import re
 import io
 from bytecode import Bytecode, Instr
+
+
+class LiteralState:
+    def __init__(self, text):
+        self.text = text
+
+    def accept_open_expression(self, offset, length):
+        return (ExpressionState(self.text[offset + length:]),
+                Literal(self.text[:offset]))
+
+    def accept_open_execution(self, offset, length):
+        return (ExecutionState(self.text[offset + length:]),
+                Literal(self.text[:offset]))
+
+    def accept_close_expression(self, offset, length):
+        raise Exception("Syntax error")
+
+    def accept_close_execution(self, offset, length):
+        raise Exception("Syntax error")
+
+    def accept_end_input(self):
+        return (None, Literal(self.text))
+
+
+class ExecutionState:
+    def __init__(self, text):
+        self.text = text
+
+    def accept_open_expression(self, offset, length):
+        raise Exception("Syntax error")
+
+    def accept_open_execution(self, offset, length):
+        raise Exception("Syntax error")
+
+    def accept_close_expression(self, offset, length):
+        raise Exception("Syntax error")
+
+    def accept_close_execution(self, offset, length):
+        return (LiteralState(self.text[offset + length:]),
+                self.text[:offset])
+
+    def accept_end_input(self):
+        raise Exception("Syntax error")
+
+
+class ExpressionState:
+    def __init__(self, text):
+        self.text = text
+
+    def accept_open_expression(self, offset, length):
+        raise Exception("Syntax error: opened expression inside expression")
+
+    def accept_open_execution(self, offset, length):
+        raise Exception("Syntax error")
+
+    def accept_close_execution(self, offset, length):
+        raise Exception("Syntax error")
+
+    def accept_close_expression(self, offset, length):
+        return (LiteralState(self.text[offset + length:]),
+                VariableExpansion(self.text[:offset].strip()))
+
+    def accept_end_input(self):
+        raise Exception("Syntax error")
 
 
 class Compiler:
@@ -18,34 +83,31 @@ class Compiler:
         return inner
 
     def _get_chunks(self, source):
-        in_literal = True
+        state = LiteralState(source)
 
-        while True:
-            next_start = source.find('{{')
-            next_end = source.find('}}')
-
-            if (next_start == -1) and (next_end == -1):
-                yield Literal(source)
-                break
-            elif (next_start == -1):
-                yield VariableExpansion(source[:next_end].strip())
-                source = source[next_end + 2:]
-            elif (next_end == -1):
-                yield Literal(source[:next_start])
-                source = source[next_start + 2:]
+        while state:
+            match = re.search(r"\{\{|\}\}|\{%|%\}",
+                              state.text)
+            if match is None:
+                (state, chunk) = state.accept_end_input()
             else:
-                if in_literal:
-                    if next_end < next_start:
-                        raise Exception("Syntax error")
-                    yield Literal(source[:next_start])
-                    in_literal = not in_literal
-                    source = source[next_start + 2:]
+                separator = match.group(0)
+
+                if separator == "{{":
+                    action = state.accept_open_expression
+                elif separator == "}}":
+                    action = state.accept_close_expression
+                elif separator == "{%":
+                    action = state.accept_open_execution
+                elif separator == "%}":
+                    action = state.accept_close_execution
                 else:
-                    if next_end > next_start:
-                        raise Exception("Syntax error")
-                    yield VariableExpansion(source[:next_end].strip())
-                    in_literal = not in_literal
-                    source = source[next_end + 2:]
+                    raise Exception("Unrecognised separator")
+
+                (state, chunk) = action(match.start(0),
+                                        len(match.group(0)))
+
+            yield chunk
 
     def _make_bytecode(self, source):
         instructions = []
