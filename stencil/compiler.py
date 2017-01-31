@@ -71,6 +71,34 @@ class ExpressionState:
         raise Exception("Syntax error")
 
 
+class Sequence:
+    def __init__(self):
+        self.elements = []
+
+    def add_element(self, element):
+        self.elements.append(element)
+
+
+class Parser:
+    def parse(self, tokens):
+        sequence = Sequence()
+
+        self._parse_into_sequence(sequence, tokens)
+
+        return sequence
+
+    def _parse_into_sequence(self, sequence, tokens):
+        for token in tokens:
+            if self._starts_subsequence(token):
+                pass
+            else:
+                sequence.add_element(token)
+        return sequence
+
+    def _starts_subsequence(self, token):
+        return isinstance(token, ExecutionState)
+
+
 class Compiler:
     def compile(self, source):
         bytecode = self._make_bytecode(source)

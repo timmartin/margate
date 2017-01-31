@@ -2,6 +2,7 @@ import unittest
 
 from stencil.compiler import Compiler
 
+
 class CompilerTest(unittest.TestCase):
     def test_compile_constant(self):
         compiler = Compiler()
