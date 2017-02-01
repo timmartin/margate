@@ -4,12 +4,19 @@ Compiler
 
 import re
 import io
+import itertools
 from bytecode import Bytecode, Instr
 
 
 class LiteralState:
     def __init__(self, text):
         self.text = text
+
+    def __eq__(self, other):
+        if not isinstance(other, LiteralState):
+            return False
+
+        return self.text == other.text
 
     def accept_open_expression(self, offset, length):
         return (ExpressionState(self.text[offset + length:]),
@@ -75,6 +82,12 @@ class Sequence:
     def __init__(self):
         self.elements = []
 
+    def __eq__(self, other):
+        if not isinstance(other, Sequence):
+            return False
+
+        return self.elements == other.elements
+
     def add_element(self, element):
         self.elements.append(element)
 
@@ -88,15 +101,28 @@ class Parser:
         return sequence
 
     def _parse_into_sequence(self, sequence, tokens):
-        for token in tokens:
-            if self._starts_subsequence(token):
-                pass
-            else:
-                sequence.add_element(token)
-        return sequence
+        token_iter = iter(tokens)
+
+        try:
+            while True:
+                token = next(token_iter)
+                if self._starts_subsequence(token):
+                    block = IfBlock()
+                    subsequence = itertools.takewhile(self._in_sequence,
+                                                      token_iter)
+
+                    self._parse_into_sequence(block.sequence, subsequence)
+                    sequence.add_element(block)
+                else:
+                    sequence.add_element(token)
+        except StopIteration:
+            return sequence
 
     def _starts_subsequence(self, token):
         return isinstance(token, ExecutionState)
+
+    def _in_sequence(self, token):
+        return not isinstance(token, ExecutionState)
 
 
 class Compiler:
@@ -173,3 +199,11 @@ class VariableExpansion:
                 Instr("LOAD_NAME", self.variable_name),
                 Instr("CALL_FUNCTION", 2),
                 Instr("POP_TOP")]
+
+
+class IfBlock:
+    def __init__(self):
+        self.sequence = Sequence()
+
+    def __eq__(self, other):
+        return isinstance(other, IfBlock)

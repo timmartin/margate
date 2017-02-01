@@ -1,6 +1,7 @@
 import unittest
 
-from stencil.compiler import Parser, LiteralState, ExecutionState
+from stencil.compiler import (Parser, LiteralState, ExecutionState,
+                              Sequence, IfBlock)
 
 
 class ParserTest(unittest.TestCase):
@@ -21,4 +22,10 @@ class ParserTest(unittest.TestCase):
                                  ExecutionState("endif"),
                                  LiteralState("Baz")])
 
-        self.assertEquals(3, len(sequence.elements))
+        expected_sequence = Sequence()
+        expected_sequence.add_element(LiteralState("Foo"))
+        expected_sequence.add_element(IfBlock())
+        expected_sequence.add_element(LiteralState("Baz"))
+
+        self.assertEquals(sequence.elements,
+                          expected_sequence.elements)
