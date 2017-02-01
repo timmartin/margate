@@ -4,7 +4,6 @@ Compiler
 
 import re
 import io
-import itertools
 from bytecode import Bytecode, Instr
 
 
@@ -17,6 +16,9 @@ class LiteralState:
             return False
 
         return self.text == other.text
+
+    def __repr__(self):
+        return "<LiteralState %r>" % self.text
 
     def accept_open_expression(self, offset, length):
         return (ExpressionState(self.text[offset + length:]),
@@ -88,6 +90,9 @@ class Sequence:
 
         return self.elements == other.elements
 
+    def __repr__(self):
+        return "<Sequence %r>" % self.elements
+
     def add_element(self, element):
         self.elements.append(element)
 
@@ -100,29 +105,31 @@ class Parser:
 
         return sequence
 
-    def _parse_into_sequence(self, sequence, tokens):
+    def _parse_into_sequence(self, sequence, tokens,
+                             termination_condition=None):
         token_iter = iter(tokens)
 
         try:
             while True:
                 token = next(token_iter)
+                if termination_condition and termination_condition(token):
+                    return
                 if self._starts_subsequence(token):
                     block = IfBlock()
-                    subsequence = itertools.takewhile(self._in_sequence,
-                                                      token_iter)
-
-                    self._parse_into_sequence(block.sequence, subsequence)
+                    self._parse_into_sequence(block.sequence,
+                                              token_iter,
+                                              self._end_if_sequence)
                     sequence.add_element(block)
                 else:
                     sequence.add_element(token)
         except StopIteration:
-            return sequence
+            return
 
     def _starts_subsequence(self, token):
         return isinstance(token, ExecutionState)
 
-    def _in_sequence(self, token):
-        return not isinstance(token, ExecutionState)
+    def _end_if_sequence(self, token):
+        return isinstance(token, ExecutionState)
 
 
 class Compiler:
@@ -206,4 +213,10 @@ class IfBlock:
         self.sequence = Sequence()
 
     def __eq__(self, other):
-        return isinstance(other, IfBlock)
+        if not isinstance(other, IfBlock):
+            return False
+
+        return self.sequence == other.sequence
+
+    def __repr__(self):
+        return "<IfBlock %r>" % self.sequence

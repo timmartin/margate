@@ -24,7 +24,12 @@ class ParserTest(unittest.TestCase):
 
         expected_sequence = Sequence()
         expected_sequence.add_element(LiteralState("Foo"))
-        expected_sequence.add_element(IfBlock())
+
+        block = IfBlock()
+        block.sequence = Sequence()
+        block.sequence.add_element(LiteralState("Bar"))
+        expected_sequence.add_element(block)
+
         expected_sequence.add_element(LiteralState("Baz"))
 
         self.assertEquals(sequence.elements,
