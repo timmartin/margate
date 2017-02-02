@@ -1,7 +1,7 @@
 import unittest
 
 from stencil.compiler import (Parser, LiteralState, ExecutionState,
-                              Sequence, IfBlock)
+                              Sequence, IfBlock, parse_expression)
 
 
 class ParserTest(unittest.TestCase):
@@ -25,7 +25,7 @@ class ParserTest(unittest.TestCase):
         expected_sequence = Sequence()
         expected_sequence.add_element(LiteralState("Foo"))
 
-        block = IfBlock()
+        block = IfBlock(condition=True)
         block.sequence = Sequence()
         block.sequence.add_element(LiteralState("Bar"))
         expected_sequence.add_element(block)
@@ -34,3 +34,8 @@ class ParserTest(unittest.TestCase):
 
         self.assertEquals(sequence.elements,
                           expected_sequence.elements)
+
+    def test_parse_if_expressions(self):
+        foo = parse_expression(["if", "True"])
+        self.assertEquals(True,
+                          foo)

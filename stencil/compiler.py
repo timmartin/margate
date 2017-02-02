@@ -7,6 +7,19 @@ import io
 from bytecode import Bytecode, Instr
 
 
+def parse_expression(expression):
+    from funcparserlib.parser import a, skip
+
+    def true_val(x): return True
+
+    def false_val(x): return False
+
+    boolean = (a('True') >> true_val) | (a('False') >> false_val)
+
+    if_expression = skip(a('if')) + boolean
+    return if_expression.parse(expression)
+
+
 class LiteralState:
     def __init__(self, text):
         self.text = text
@@ -115,7 +128,8 @@ class Parser:
                 if termination_condition and termination_condition(token):
                     return
                 if self._starts_subsequence(token):
-                    block = IfBlock()
+                    block = IfBlock(parse_expression(re.split(r'\s+',
+                                                              token.text)))
                     self._parse_into_sequence(block.sequence,
                                               token_iter,
                                               self._end_if_sequence)
@@ -209,14 +223,16 @@ class VariableExpansion:
 
 
 class IfBlock:
-    def __init__(self):
+    def __init__(self, condition):
+        self.condition = condition
         self.sequence = Sequence()
 
     def __eq__(self, other):
         if not isinstance(other, IfBlock):
             return False
 
-        return self.sequence == other.sequence
+        return (self.sequence == other.sequence) \
+            and (self.condition == other.condition)
 
     def __repr__(self):
-        return "<IfBlock %r>" % self.sequence
+        return "<IfBlock %r, %r>" % (self.condition, self.sequence)
