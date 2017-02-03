@@ -66,7 +66,7 @@ class ExecutionState:
 
     def accept_close_execution(self, offset, length):
         return (LiteralState(self.text[offset + length:]),
-                self.text[:offset])
+                Execution(self.text[:offset]))
 
     def accept_end_input(self):
         raise Exception("Syntax error")
@@ -190,7 +190,10 @@ class Compiler:
             "write_func": io.StringIO.write
         }
 
-        for item in self._get_chunks(source):
+        parser = Parser()
+        sequence = parser.parse(self._get_chunks(source))
+
+        for item in sequence.elements:
             instructions += item.make_bytecode(symbol_table)
 
         bytecode = Bytecode(instructions + [Instr("LOAD_CONST", None),
@@ -201,6 +204,9 @@ class Compiler:
 class Literal:
     def __init__(self, contents):
         self.contents = contents
+
+    def __str__(self):
+        return "<Literal %r>" % self.contents
 
     def make_bytecode(self, symbol_table):
         return [Instr("LOAD_CONST", symbol_table["write_func"]),
@@ -220,6 +226,17 @@ class VariableExpansion:
                 Instr("LOAD_NAME", self.variable_name),
                 Instr("CALL_FUNCTION", 2),
                 Instr("POP_TOP")]
+
+
+class Execution:
+    def __init__(self, expression):
+        self.expression = expression
+
+    def __str__(self):
+        return "<Execution: %r>" % self.expression
+
+    def make_bytecode(self, symbol_table):
+        return []
 
 
 class IfBlock:

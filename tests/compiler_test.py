@@ -28,7 +28,6 @@ class CompilerTest(unittest.TestCase):
             function(you="Tim", me="an optimised template"),
             "Hello Tim, I'm an optimised template. Nice to meet you")
 
-    @unittest.skip("Not yet implemented")
     def test_compile_if_block(self):
         compiler = Compiler()
 
