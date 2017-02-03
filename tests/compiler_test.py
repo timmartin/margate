@@ -38,6 +38,13 @@ class CompilerTest(unittest.TestCase):
             function(),
             "Conditional: true")
 
+        function = compiler.compile(
+            "Conditional: {% if False %}true{% endif %}")
+
+        self.assertEquals(
+            function(),
+            "Conditional: ")
+
     @unittest.skip("Not yet implemented")
     def test_compile_for_loop(self):
         compiler = Compiler()

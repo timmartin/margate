@@ -4,7 +4,7 @@ Compiler
 
 import re
 import io
-from bytecode import Bytecode, Instr
+from bytecode import Bytecode, Instr, Label
 
 
 def parse_expression(expression):
@@ -128,8 +128,10 @@ class Parser:
                 if termination_condition and termination_condition(token):
                     return
                 if self._starts_subsequence(token):
-                    block = IfBlock(parse_expression(re.split(r'\s+',
-                                                              token.text)))
+                    block = IfBlock(
+                        parse_expression(re.split(r'\s+',
+                                                  token.expression.strip())))
+
                     self._parse_into_sequence(block.sequence,
                                               token_iter,
                                               self._end_if_sequence)
@@ -140,10 +142,10 @@ class Parser:
             return
 
     def _starts_subsequence(self, token):
-        return isinstance(token, ExecutionState)
+        return isinstance(token, Execution)
 
     def _end_if_sequence(self, token):
-        return isinstance(token, ExecutionState)
+        return isinstance(token, Execution)
 
 
 class Compiler:
@@ -205,7 +207,13 @@ class Literal:
     def __init__(self, contents):
         self.contents = contents
 
-    def __str__(self):
+    def __eq__(self, other):
+        if not isinstance(other, Literal):
+            return False
+
+        return other.contents == self.contents
+
+    def __repr__(self):
         return "<Literal %r>" % self.contents
 
     def make_bytecode(self, symbol_table):
@@ -232,11 +240,8 @@ class Execution:
     def __init__(self, expression):
         self.expression = expression
 
-    def __str__(self):
+    def __repr__(self):
         return "<Execution: %r>" % self.expression
-
-    def make_bytecode(self, symbol_table):
-        return []
 
 
 class IfBlock:
@@ -253,3 +258,15 @@ class IfBlock:
 
     def __repr__(self):
         return "<IfBlock %r, %r>" % (self.condition, self.sequence)
+
+    def make_bytecode(self, symbol_table):
+        label_end = Label()
+        inner = [Instr("LOAD_CONST", self.condition),
+                 Instr("POP_JUMP_IF_FALSE", label_end)]
+
+        for element in self.sequence.elements:
+            inner += element.make_bytecode(symbol_table)
+
+        inner += [label_end]
+
+        return inner
