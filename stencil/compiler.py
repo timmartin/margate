@@ -4,20 +4,36 @@ Compiler
 
 import re
 import io
+from collections import namedtuple
 from bytecode import Bytecode, Instr, Label
+
+IfNode = namedtuple('IfNode', ['expression'])
+ForNode = namedtuple('ForNode', ['variable', 'collection'])
 
 
 def parse_expression(expression):
-    from funcparserlib.parser import a, skip
+    from funcparserlib.parser import a, skip, some
 
     def true_val(x): return True
 
     def false_val(x): return False
 
+    variable_name = some(lambda x: re.match(r'[a-zA-Z_]+', x))
+
     boolean = (a('True') >> true_val) | (a('False') >> false_val)
 
     if_expression = skip(a('if')) + boolean
-    return if_expression.parse(expression)
+
+    for_expression = (
+        skip(a('for'))
+        + (variable_name >> str)
+        + skip(a('in'))
+        + (variable_name >> str))
+
+    def make_for_node(x): return ForNode(*x)
+
+    return (if_expression >> IfNode
+            | for_expression >> make_for_node).parse(expression)
 
 
 class LiteralState:
@@ -128,9 +144,14 @@ class Parser:
                 if termination_condition and termination_condition(token):
                     return
                 if self._starts_subsequence(token):
-                    block = IfBlock(
-                        parse_expression(re.split(r'\s+',
-                                                  token.expression.strip())))
+                    node = parse_expression(
+                        re.split(r'\s+',
+                                 token.expression.strip()))
+
+                    if isinstance(node, IfNode):
+                        block = IfBlock(node.expression)
+                    elif isinstance(node, ForNode):
+                        block = ForBlock(node)
 
                     self._parse_into_sequence(block.sequence,
                                               token_iter,
@@ -270,3 +291,23 @@ class IfBlock:
         inner += [label_end]
 
         return inner
+
+
+class ForBlock:
+    def __init__(self, for_node):
+        self.variable = for_node.variable
+        self.collection = for_node.collection
+        self.sequence = Sequence()
+
+    def __eq__(self, other):
+        if not isinstance(other, ForBlock):
+            return False
+
+        return (self.variable == other.variable) \
+            and (self.collection == other.collection) \
+            and (self.sequence == other.sequence)
+
+    def __repr__(self):
+        return "<ForBlock %r in %r (%r)>" % (self.variable,
+                                             self.collection,
+                                             self.sequence)

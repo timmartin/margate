@@ -1,7 +1,8 @@
 import unittest
 
 from stencil.compiler import (Parser, Literal, Execution,
-                              Sequence, IfBlock, parse_expression)
+                              Sequence, IfBlock, ForBlock, parse_expression,
+                              IfNode, ForNode)
 
 
 class ParserTest(unittest.TestCase):
@@ -35,7 +36,24 @@ class ParserTest(unittest.TestCase):
         self.assertEquals(sequence.elements,
                           expected_sequence.elements)
 
-    def test_parse_if_expressions(self):
+    def test_parse_for_loop(self):
+        parser = Parser()
+
+        sequence = parser.parse([Execution("for x in things"),
+                                 Literal("bar"),
+                                 Execution("endfor")])
+
+        expected_sequence = Sequence()
+        block = ForBlock(ForNode('x', 'things'))
+        block.sequence.add_element(Literal("bar"))
+        expected_sequence.add_element(block)
+
+        self.assertEquals(sequence.elements,
+                          expected_sequence.elements)
+
+    def test_parser(self):
         foo = parse_expression(["if", "True"])
-        self.assertEquals(True,
-                          foo)
+        self.assertEqual(foo, IfNode(True))
+
+        foo = parse_expression(["for", "var", "in", "collection"])
+        self.assertEqual(foo, ("var", "collection"))
