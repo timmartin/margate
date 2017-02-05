@@ -45,7 +45,6 @@ class CompilerTest(unittest.TestCase):
             function(),
             "Conditional: ")
 
-    @unittest.skip("Not yet implemented")
     def test_compile_for_loop(self):
         compiler = Compiler()
 
@@ -54,5 +53,5 @@ class CompilerTest(unittest.TestCase):
 
         self.assertEquals(
             function(numbers=range(3)),
-            "Let's count:  0 1 2  done"
+            "Let's count:  0  1  2  done"
         )

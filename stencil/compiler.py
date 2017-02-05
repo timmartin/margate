@@ -252,7 +252,9 @@ class VariableExpansion:
     def make_bytecode(self, symbol_table):
         return [Instr("LOAD_CONST", symbol_table["write_func"]),
                 Instr("LOAD_NAME", "_output"),
+                Instr("LOAD_NAME", "str"),
                 Instr("LOAD_NAME", self.variable_name),
+                Instr("CALL_FUNCTION", 1),
                 Instr("CALL_FUNCTION", 2),
                 Instr("POP_TOP")]
 
@@ -311,3 +313,39 @@ class ForBlock:
         return "<ForBlock %r in %r (%r)>" % (self.variable,
                                              self.collection,
                                              self.sequence)
+
+    def make_bytecode(self, symbol_table):
+        catch_block = Label()
+        start_loop = Label()
+        end_loop = Label()
+        end_for = Label()
+        end_of_function = Label()
+
+        inner = [Instr("SETUP_EXCEPT", catch_block),
+                 Instr("SETUP_LOOP", end_for),
+                 Instr("LOAD_NAME", self.collection),
+                 Instr("GET_ITER"),
+                 start_loop,
+                 Instr("FOR_ITER", end_loop),
+                 Instr("STORE_NAME", self.variable)]
+
+        for element in self.sequence.elements:
+            inner += element.make_bytecode(symbol_table)
+
+        inner += [Instr("JUMP_ABSOLUTE", start_loop),
+                  end_loop,
+                  Instr("POP_BLOCK"),
+                  end_for,
+                  Instr("POP_BLOCK"),
+                  Instr("JUMP_FORWARD", end_of_function)]
+
+        inner += [catch_block,
+                  Instr("POP_TOP"),
+                  Instr("POP_TOP"),
+                  Instr("POP_TOP"),
+                  Instr("POP_EXCEPT"),
+                  Instr("JUMP_FORWARD", end_of_function),
+                  Instr("END_FINALLY"),
+                  end_of_function]
+
+        return inner
