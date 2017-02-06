@@ -1,5 +1,4 @@
 from . import code_generation
-from . import compiler
 
 
 class LiteralState:
@@ -58,7 +57,7 @@ class ExecutionState:
 
     def accept_close_execution(self, offset, length):
         return (LiteralState(self.text[offset + length:]),
-                compiler.Execution(self.text[:offset]))
+                code_generation.Execution(self.text[:offset]))
 
     def accept_end_input(self):
         raise Exception("Syntax error")

@@ -1,8 +1,9 @@
 import unittest
 
 from stencil.parser import parse_expression, IfNode, ForNode
-from stencil.compiler import Execution, Parser
-from stencil.code_generation import Literal, Sequence, IfBlock, ForBlock
+from stencil.compiler import Parser
+from stencil.code_generation import (Literal, Sequence, IfBlock,
+                                     ForBlock, Execution)
 
 
 class ParserTest(unittest.TestCase):

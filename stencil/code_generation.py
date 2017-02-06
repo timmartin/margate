@@ -161,3 +161,17 @@ class Literal:
                 Instr("LOAD_CONST", self.contents),
                 Instr("CALL_FUNCTION", 2),
                 Instr("POP_TOP")]
+
+
+class Execution:
+    """
+    .. todo:: This doesn't really belong in this module. It's here
+      because we're combining two different types: block parser
+      output and code generation.
+
+    """
+    def __init__(self, expression):
+        self.expression = expression
+
+    def __repr__(self):
+        return "<Execution: %r>" % self.expression

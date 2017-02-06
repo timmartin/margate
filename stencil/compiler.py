@@ -46,10 +46,10 @@ class Parser:
             return
 
     def _starts_subsequence(self, token):
-        return isinstance(token, Execution)
+        return isinstance(token, code_generation.Execution)
 
     def _end_if_sequence(self, token):
-        return isinstance(token, Execution)
+        return isinstance(token, code_generation.Execution)
 
 
 class Compiler:
@@ -105,11 +105,3 @@ class Compiler:
         bytecode = Bytecode(instructions + [Instr("LOAD_CONST", None),
                                             Instr("RETURN_VALUE")])
         return bytecode.to_code()
-
-
-class Execution:
-    def __init__(self, expression):
-        self.expression = expression
-
-    def __repr__(self):
-        return "<Execution: %r>" % self.expression
