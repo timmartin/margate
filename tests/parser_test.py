@@ -1,4 +1,5 @@
 import unittest
+import ast
 
 from stencil.parser import parse_expression, IfNode, ForNode
 from stencil.compiler import Parser
@@ -24,18 +25,18 @@ class ParserTest(unittest.TestCase):
                                  Execution("endif"),
                                  Literal("Baz")])
 
-        expected_sequence = Sequence()
-        expected_sequence.add_element(Literal("Foo"))
+        self.assertEquals(sequence.elements[0],
+                          Literal("Foo"))
 
-        block = IfBlock(condition=True)
-        block.sequence = Sequence()
-        block.sequence.add_element(Literal("Bar"))
-        expected_sequence.add_element(block)
+        self.assertIsInstance(sequence.elements[1],
+                              IfBlock)
+        # TODO There doesn't seem to be an easy way to verify the
+        # contents of the AST object.
+        self.assertEquals(sequence.elements[1].sequence.elements[0],
+                          Literal("Bar"))
 
-        expected_sequence.add_element(Literal("Baz"))
-
-        self.assertEquals(sequence.elements,
-                          expected_sequence.elements)
+        self.assertEquals(sequence.elements[2],
+                          Literal("Baz"))
 
     def test_parse_for_loop(self):
         parser = Parser()
@@ -54,7 +55,16 @@ class ParserTest(unittest.TestCase):
 
     def test_parser(self):
         foo = parse_expression(["if", "True"])
-        self.assertEqual(foo, IfNode(True))
+        self.assertIsInstance(foo, IfNode)
+        self.assertEqual(foo.expression.body.value,
+                         True)
 
         foo = parse_expression(["for", "var", "in", "collection"])
         self.assertEqual(foo, ("var", "collection"))
+
+        foo = parse_expression(["if", "x", "<", "y"])
+        self.assertIsInstance(foo, IfNode)
+        self.assertEqual(ast.dump(foo.expression),
+                         "Expression(body=Compare("
+                         "left=Name(id='x', ctx=Load()), ops=[Lt()],"
+                         " comparators=[Name(id='y', ctx=Load())]))")

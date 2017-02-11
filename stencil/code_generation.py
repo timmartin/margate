@@ -3,7 +3,7 @@ function, in the form of bytecode generators.
 
 """
 
-from bytecode import Instr, Label
+from bytecode import Instr, Label, ConcreteBytecode
 
 
 class Sequence:
@@ -111,8 +111,19 @@ class IfBlock:
 
     def make_bytecode(self, symbol_table):
         label_end = Label()
-        inner = [Instr("LOAD_CONST", self.condition),
-                 Instr("POP_JUMP_IF_FALSE", label_end)]
+
+        compiled_expr = compile(self.condition,
+                                filename="<none>",
+                                mode="eval")
+        concrete_bytecode = ConcreteBytecode.from_code(compiled_expr)
+        inner = concrete_bytecode.to_bytecode()
+
+        # The compiler drops a return statement at the end of the
+        # expression, which we want to strip off so that we can use
+        # the result
+        inner.pop()
+
+        inner += [Instr("POP_JUMP_IF_FALSE", label_end)]
 
         for element in self.sequence.elements:
             inner += element.make_bytecode(symbol_table)

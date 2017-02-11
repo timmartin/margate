@@ -45,6 +45,20 @@ class CompilerTest(unittest.TestCase):
             function(),
             "Conditional: ")
 
+    def test_compile_if_expression(self):
+        compiler = Compiler()
+
+        function = compiler.compile(
+            "{% if x < 10 %}x is less than 10{% endif %}")
+
+        self.assertEquals(
+            function(x=5),
+            "x is less than 10")
+
+        self.assertEquals(
+            function(x=20),
+            "")
+
     def test_compile_for_loop(self):
         compiler = Compiler()
 
