@@ -20,7 +20,12 @@ class StencilEngine(BaseEngine):
 
     def __init__(self, params):
         params = params.copy()
-        params.pop('OPTIONS')
+
+        try:
+            params.pop('OPTIONS')
+        except KeyError:
+            pass
+
         super(StencilEngine, self).__init__(params)
 
         self.loader = StencilLoader(self)
