@@ -26,6 +26,7 @@ class Parser:
                 token = next(token_iter)
                 if termination_condition and termination_condition(token):
                     return
+
                 if self._starts_subsequence(token):
                     node = parser.parse_expression(
                         re.split(r'\s+',
@@ -33,12 +34,16 @@ class Parser:
 
                     if isinstance(node, parser.IfNode):
                         block = code_generation.IfBlock(node.expression)
+                        inner_termination_condition = self._end_if_sequence
                     elif isinstance(node, parser.ForNode):
                         block = code_generation.ForBlock(node)
+                        inner_termination_condition = self._end_for_sequence
+                    else:
+                        raise Exception("Unrecognised block type")
 
                     self._parse_into_sequence(block.sequence,
                                               token_iter,
-                                              self._end_if_sequence)
+                                              inner_termination_condition)
                     sequence.add_element(block)
                 else:
                     sequence.add_element(token)
@@ -46,10 +51,18 @@ class Parser:
             return
 
     def _starts_subsequence(self, token):
-        return isinstance(token, code_generation.Execution)
+        return (isinstance(token, code_generation.Execution)
+                and not any(func(token)
+                            for func in [self._end_if_sequence,
+                                         self._end_for_sequence]))
 
     def _end_if_sequence(self, token):
-        return isinstance(token, code_generation.Execution)
+        return (isinstance(token, code_generation.Execution)
+                and token.expression == "endif")
+
+    def _end_for_sequence(self, token):
+        return (isinstance(token, code_generation.Execution)
+                and token.expression == "endfor")
 
 
 class Compiler:

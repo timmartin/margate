@@ -53,6 +53,24 @@ class ParserTest(unittest.TestCase):
         self.assertEquals(sequence.elements,
                           expected_sequence.elements)
 
+    def test_parse_nested(self):
+        parser = Parser()
+
+        sequence = parser.parse([Execution("for x in things"),
+                                 Execution("if x % 2"),
+                                 Execution("endif"),
+                                 Execution("endfor")])
+
+        self.assertEquals(1,
+                          len(sequence.elements))
+        self.assertIsInstance(sequence.elements[0],
+                              ForBlock)
+
+        self.assertIsInstance(sequence.elements[0].sequence.elements[0],
+                              IfBlock)
+        self.assertEquals(1,
+                          len(sequence.elements[0].sequence.elements))
+
     def test_parser(self):
         foo = parse_expression(["if", "True"])
         self.assertIsInstance(foo, IfNode)

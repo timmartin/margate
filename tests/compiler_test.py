@@ -69,3 +69,15 @@ class CompilerTest(unittest.TestCase):
             function(numbers=range(3)),
             "Let's count:  0  1  2  done"
         )
+
+    def test_for_if_nested(self):
+        compiler = Compiler()
+
+        function = compiler.compile(
+            "Odd numbers: {% for i in numbers %}{% if i % 2 %}"
+            "{{ i }} "
+            "{% endif %}{% endfor %}")
+
+        self.assertEquals(
+            function(numbers=range(10)),
+            "Odd numbers: 1 3 5 7 9 ")

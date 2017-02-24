@@ -57,7 +57,7 @@ class ExecutionState:
 
     def accept_close_execution(self, offset, length):
         return (LiteralState(self.text[offset + length:]),
-                code_generation.Execution(self.text[:offset]))
+                code_generation.Execution(self.text[:offset].strip()))
 
     def accept_end_input(self):
         raise Exception("Syntax error")
