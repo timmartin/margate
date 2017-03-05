@@ -1,4 +1,5 @@
 import unittest
+from collections import namedtuple
 
 from stencil.compiler import Compiler
 
@@ -81,3 +82,15 @@ class CompilerTest(unittest.TestCase):
         self.assertEquals(
             function(numbers=range(10)),
             "Odd numbers: 1 3 5 7 9 ")
+
+    def test_object_member(self):
+        Employee = namedtuple('Employee', ['name'])
+
+        compiler = Compiler()
+
+        function = compiler.compile(
+            "member: {{ employee.name }}")
+
+        self.assertEquals(
+            function(employee=Employee("alice")),
+            "member: alice")

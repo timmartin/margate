@@ -134,9 +134,8 @@ class IfBlock:
 
 
 class VariableExpansion:
-    """A variable expansion takes the value of a variable and includes it
-    into the template output. This should really take a full
-    expression, not just a single variable.
+    """A variable expansion takes the value of an expression and includes
+    it in the template output.
 
     """
 
@@ -144,13 +143,28 @@ class VariableExpansion:
         self.variable_name = variable_name
 
     def make_bytecode(self, symbol_table):
-        return [Instr("LOAD_CONST", symbol_table["write_func"]),
+        code = [Instr("LOAD_CONST", symbol_table["write_func"]),
                 Instr("LOAD_NAME", "_output"),
-                Instr("LOAD_NAME", "str"),
-                Instr("LOAD_NAME", self.variable_name),
-                Instr("CALL_FUNCTION", 1),
-                Instr("CALL_FUNCTION", 2),
-                Instr("POP_TOP")]
+                Instr("LOAD_NAME", "str")]
+
+        compiled_expr = compile(self.variable_name,
+                                filename="<none>",
+                                mode="eval")
+        concrete_bytecode = ConcreteBytecode.from_code(compiled_expr)
+        inner = concrete_bytecode.to_bytecode()
+
+        # The compiler drops a return statement at the end of the
+        # expression, which we want to strip off so that we can use
+        # the result
+        inner.pop()
+
+        code += inner
+
+        code += [Instr("CALL_FUNCTION", 1),
+                 Instr("CALL_FUNCTION", 2),
+                 Instr("POP_TOP")]
+
+        return code
 
 
 class Literal:
