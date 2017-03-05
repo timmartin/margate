@@ -1,10 +1,11 @@
 import unittest
 import ast
 
-from stencil.parser import parse_expression, IfNode, ForNode
+from stencil.parser import parse_expression, IfNode, ForNode, ExtendsNode
 from stencil.compiler import Parser
 from stencil.code_generation import (Literal, Sequence, IfBlock,
-                                     ForBlock, Execution)
+                                     ForBlock, ExtendsBlock, ReplaceableBlock,
+                                     Execution)
 
 
 class ParserTest(unittest.TestCase):
@@ -71,18 +72,44 @@ class ParserTest(unittest.TestCase):
         self.assertEquals(1,
                           len(sequence.elements[0].sequence.elements))
 
-    def test_parser(self):
-        foo = parse_expression(["if", "True"])
-        self.assertIsInstance(foo, IfNode)
-        self.assertEqual(foo.expression.body.value,
+    def test_expression_parser(self):
+        """Test the expression parser used within the {% %} node"""
+
+        node = parse_expression(["if", "True"])
+        self.assertIsInstance(node, IfNode)
+        self.assertEqual(node.expression.body.value,
                          True)
 
-        foo = parse_expression(["for", "var", "in", "collection"])
-        self.assertEqual(foo, ("var", "collection"))
+        node = parse_expression(["for", "var", "in", "collection"])
+        self.assertIsInstance(node, ForNode)
+        self.assertEqual(node, ForNode("var", "collection"))
 
-        foo = parse_expression(["if", "x", "<", "y"])
-        self.assertIsInstance(foo, IfNode)
-        self.assertEqual(ast.dump(foo.expression),
+        node = parse_expression(["if", "x", "<", "y"])
+        self.assertIsInstance(node, IfNode)
+        self.assertEqual(ast.dump(node.expression),
                          "Expression(body=Compare("
                          "left=Name(id='x', ctx=Load()), ops=[Lt()],"
                          " comparators=[Name(id='y', ctx=Load())]))")
+
+        node = parse_expression(["extends", '"other.html"'])
+        self.assertIsInstance(node, ExtendsNode)
+        self.assertEqual(node.filename,
+                         "other.html")
+
+    def test_extends(self):
+        parser = Parser()
+
+        sequence = parser.parse([Execution('extends "other.html"'),
+                                 Execution("block title"),
+                                 Literal("My template"),
+                                 Execution("endblock")])
+
+        self.assertEquals(1,
+                          len(sequence.elements))
+        self.assertIsInstance(sequence.elements[0],
+                              ExtendsBlock)
+
+        self.assertEquals(1,
+                          len(sequence.elements[0].sequence.elements))
+        self.assertIsInstance(sequence.elements[0].sequence.elements[0],
+                              ReplaceableBlock)

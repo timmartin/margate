@@ -38,6 +38,13 @@ class Parser:
                     elif isinstance(node, parser.ForNode):
                         block = code_generation.ForBlock(node)
                         inner_termination_condition = self._end_for_sequence
+                    elif isinstance(node, parser.ExtendsNode):
+                        block = code_generation.ExtendsBlock()
+                        inner_termination_condition = None
+                    elif isinstance(node, parser.BlockNode):
+                        block = code_generation.ReplaceableBlock(
+                            node.block_name)
+                        inner_termination_condition = self._end_block_sequence
                     else:
                         raise Exception("Unrecognised block type")
 
@@ -63,6 +70,15 @@ class Parser:
     def _end_for_sequence(self, token):
         return (isinstance(token, code_generation.Execution)
                 and token.expression == "endfor")
+
+    def _end_block_sequence(self, token):
+        return (isinstance(token, code_generation.Execution)
+                and token.expression == "endblock")
+
+
+class TemplateLocator:
+    def find_template(self, template_name):
+        pass
 
 
 class Compiler:

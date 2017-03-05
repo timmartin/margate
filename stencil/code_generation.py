@@ -133,6 +133,17 @@ class IfBlock:
         return inner
 
 
+class ExtendsBlock:
+    def __init__(self):
+        self.sequence = Sequence()
+
+
+class ReplaceableBlock:
+    def __init__(self, name):
+        self.name = name
+        self.sequence = Sequence()
+
+
 class VariableExpansion:
     """A variable expansion takes the value of an expression and includes
     it in the template output.
