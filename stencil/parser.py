@@ -24,12 +24,10 @@ def parse_expression(expression):
     """
     from funcparserlib.parser import a, skip, some
 
+    # For if expressions, we rely on the Python parser to process the
+    # expression rather than using our own parser.
     if expression[0] == 'if':
         return IfNode(ast.parse(' '.join(expression[1:]), mode="eval"))
-
-    def true_val(x): return True
-
-    def false_val(x): return False
 
     variable_name = some(lambda x: re.match(r'[a-zA-Z_]+', x))
 
