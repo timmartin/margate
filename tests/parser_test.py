@@ -15,7 +15,7 @@ class ParserTest(unittest.TestCase):
         sequence = parser.parse([Literal("Foo"),
                                  Literal("Bar")])
 
-        self.assertEquals(2, len(sequence.elements))
+        self.assertEqual(2, len(sequence.elements))
 
     def test_parse_if_block(self):
         parser = Parser()
@@ -26,18 +26,18 @@ class ParserTest(unittest.TestCase):
                                  Execution("endif"),
                                  Literal("Baz")])
 
-        self.assertEquals(sequence.elements[0],
-                          Literal("Foo"))
+        self.assertEqual(sequence.elements[0],
+                         Literal("Foo"))
 
         self.assertIsInstance(sequence.elements[1],
                               IfBlock)
         # TODO There doesn't seem to be an easy way to verify the
         # contents of the AST object.
-        self.assertEquals(sequence.elements[1].sequence.elements[0],
-                          Literal("Bar"))
+        self.assertEqual(sequence.elements[1].sequence.elements[0],
+                         Literal("Bar"))
 
-        self.assertEquals(sequence.elements[2],
-                          Literal("Baz"))
+        self.assertEqual(sequence.elements[2],
+                         Literal("Baz"))
 
     def test_parse_for_loop(self):
         parser = Parser()
@@ -51,8 +51,8 @@ class ParserTest(unittest.TestCase):
         block.sequence.add_element(Literal("bar"))
         expected_sequence.add_element(block)
 
-        self.assertEquals(sequence.elements,
-                          expected_sequence.elements)
+        self.assertEqual(sequence.elements,
+                         expected_sequence.elements)
 
     def test_parse_nested(self):
         parser = Parser()
@@ -62,15 +62,15 @@ class ParserTest(unittest.TestCase):
                                  Execution("endif"),
                                  Execution("endfor")])
 
-        self.assertEquals(1,
-                          len(sequence.elements))
+        self.assertEqual(1,
+                         len(sequence.elements))
         self.assertIsInstance(sequence.elements[0],
                               ForBlock)
 
         self.assertIsInstance(sequence.elements[0].sequence.elements[0],
                               IfBlock)
-        self.assertEquals(1,
-                          len(sequence.elements[0].sequence.elements))
+        self.assertEqual(1,
+                         len(sequence.elements[0].sequence.elements))
 
     def test_expression_parser(self):
         """Test the expression parser used within the {% %} node"""
@@ -109,7 +109,7 @@ class ParserTest(unittest.TestCase):
         self.assertIsInstance(sequence.elements[0],
                               ExtendsBlock)
 
-        self.assertEquals(1,
-                          len(sequence.elements[0].sequence.elements))
+        self.assertEqual(1,
+                         len(sequence.elements[0].sequence.elements))
         self.assertIsInstance(sequence.elements[0].sequence.elements[0],
                               ReplaceableBlock)
