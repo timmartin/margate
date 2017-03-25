@@ -9,7 +9,24 @@ from bytecode import Bytecode, Instr
 from . import parser, block_parser, code_generation
 
 
+class UnsupportedElementException(Exception):
+    pass
+
+
 class Parser:
+    """The Parser is responsible for turning a template in "tokenised"
+    form into a tree structure from which it is straightforward to
+    generate bytecode.
+
+    The input is in the form of a flat list of atomic elements of the
+    template, where literal text (of any length) is a single element,
+    and a {% %} or {{ }} expression is a single element.
+
+    Figuring out nesting of starting and ending of loops happens
+    within the parser.
+
+    """
+
     def __init__(self, template_locator=None):
 
         def _get_related_template(template_name):
@@ -39,61 +56,60 @@ class Parser:
                 if termination_condition and termination_condition(token):
                     return
 
-                if self._starts_subsequence(token):
-                    node = parser.parse_expression(
-                        re.split(r'\s+',
-                                 token.expression.strip()))
-
-                    if isinstance(node, parser.IfNode):
-                        block = code_generation.IfBlock(node.expression)
-                        inner_termination_condition = self._end_if_sequence
-                    elif isinstance(node, parser.ForNode):
-                        block = code_generation.ForBlock(node)
-                        inner_termination_condition = self._end_for_sequence
-                    elif isinstance(node, parser.ExtendsNode):
-                        if self._sub_template_locator is None:
-                            # TODO Bad error message and exception type
-                            raise Exception("Extends node in a parser "
-                                            "with no sub_template_locator")
-
-                        content = self._sub_template_locator(
-                            node.template_name)
-                        parsed = self.parse(content)
-                        block = code_generation.ExtendsBlock(parsed)
-                        inner_termination_condition = None
-                    elif isinstance(node, parser.BlockNode):
-                        block = code_generation.ReplaceableBlock(
-                            node.block_name)
-                        inner_termination_condition = self._end_block_sequence
-                    else:
-                        raise Exception("Unrecognised block type")
-
-                    self._parse_into_sequence(block.sequence,
-                                              token_iter,
-                                              inner_termination_condition)
+                if isinstance(token, code_generation.Execution):
+                    # An execution node always starts a subsequence
+                    # (i.e. a node in the tree with its own
+                    # children). Since we've ruled out the case where
+                    # this is the termination of an existing block,
+                    # any Execution node is the start of a new block.
+                    block = self._parse_subsequence(token, token_iter)
                     sequence.add_element(block)
                 else:
                     sequence.add_element(token)
         except StopIteration:
             return
 
-    def _starts_subsequence(self, token):
-        return (isinstance(token, code_generation.Execution)
-                and not any(func(token)
-                            for func in [self._end_if_sequence,
-                                         self._end_for_sequence]))
+    def _parse_subsequence(self, token, token_iter):
+        node = parser.parse_expression(
+            re.split(r'\s+',
+                     token.expression.strip()))
 
-    def _end_if_sequence(self, token):
-        return (isinstance(token, code_generation.Execution)
-                and token.expression == "endif")
+        if isinstance(node, parser.IfNode):
+            block = code_generation.IfBlock(node.expression)
+            inner_termination_condition = self._end_sequence("endif")
+        elif isinstance(node, parser.ForNode):
+            block = code_generation.ForBlock(node)
+            inner_termination_condition = self._end_sequence("endfor")
+        elif isinstance(node, parser.ExtendsNode):
+            if self._sub_template_locator is None:
+                raise UnsupportedElementException(
+                    "Parser is not configured to support "
+                    "extending other templates")
 
-    def _end_for_sequence(self, token):
-        return (isinstance(token, code_generation.Execution)
-                and token.expression == "endfor")
+            content = self._sub_template_locator(
+                node.template_name)
+            parsed = self.parse(content)
+            block = code_generation.ExtendsBlock(parsed)
+            inner_termination_condition = None
+        elif isinstance(node, parser.BlockNode):
+            block = code_generation.ReplaceableBlock(
+                node.block_name)
+            inner_termination_condition = self._end_sequence("endblock")
+        else:
+            raise Exception("Unrecognised block type")
 
-    def _end_block_sequence(self, token):
-        return (isinstance(token, code_generation.Execution)
-                and token.expression == "endblock")
+        self._parse_into_sequence(block.sequence,
+                                  token_iter,
+                                  inner_termination_condition)
+
+        return block
+
+    def _end_sequence(self, end_token):
+        def is_end_token(token):
+            return (isinstance(token, code_generation.Execution)
+                    and token.expression == end_token)
+
+        return is_end_token
 
 
 class TemplateLocator:
@@ -102,6 +118,10 @@ class TemplateLocator:
 
 
 class Compiler:
+    """The Compiler takes a template in string form and returns bytecode
+    that implements the template.
+    """
+
     def __init__(self, template_locator=None):
         if template_locator is None:
             template_locator = TemplateLocator()
