@@ -11,9 +11,9 @@ Features
 
 Currently Stencil supports the following:
 
-* `for` loops
-* `if` blocks with arbitrary conditions (but not `else` blocks)
-* `extends` nodes and `block` nodes that can be overridden in
+* ``for`` loops
+* ``if`` blocks with arbitrary conditions (but not ``else`` blocks)
+* ``extends`` nodes and ``block`` nodes that can be overridden in
   extending templates
 * Arbitrary nesting of the above (though this isn't well tested yet)
 * Embedding variable values in output (but without the ability to
