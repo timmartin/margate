@@ -15,7 +15,7 @@ import funcparserlib.parser
 
 IfNode = namedtuple('IfNode', ['expression'])
 ForNode = namedtuple('ForNode', ['variable', 'collection'])
-ExtendsNode = namedtuple('ExtendsNode', ['filename'])
+ExtendsNode = namedtuple('ExtendsNode', ['template_name'])
 BlockNode = namedtuple('BlockNode', ['block_name'])
 
 

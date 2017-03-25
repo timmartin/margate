@@ -10,6 +10,18 @@ from . import parser, block_parser, code_generation
 
 
 class Parser:
+    def __init__(self, template_locator=None):
+
+        def _get_related_template(template_name):
+            template = template_locator.find_template(template_name)
+            if not template:
+                raise FileNotFoundError()
+            with open(template) as template_file:
+                compiler = Compiler(template_locator)
+                return compiler._get_chunks(template_file.read())
+
+        self._sub_template_locator = _get_related_template
+
     def parse(self, tokens):
         sequence = code_generation.Sequence()
 
@@ -39,7 +51,15 @@ class Parser:
                         block = code_generation.ForBlock(node)
                         inner_termination_condition = self._end_for_sequence
                     elif isinstance(node, parser.ExtendsNode):
-                        block = code_generation.ExtendsBlock()
+                        if self._sub_template_locator is None:
+                            # TODO Bad error message and exception type
+                            raise Exception("Extends node in a parser "
+                                            "with no sub_template_locator")
+
+                        content = self._sub_template_locator(
+                            node.template_name)
+                        parsed = self.parse(content)
+                        block = code_generation.ExtendsBlock(parsed)
                         inner_termination_condition = None
                     elif isinstance(node, parser.BlockNode):
                         block = code_generation.ReplaceableBlock(
@@ -82,8 +102,14 @@ class TemplateLocator:
 
 
 class Compiler:
+    def __init__(self, template_locator=None):
+        if template_locator is None:
+            template_locator = TemplateLocator()
+
+        self._template_locator = template_locator
+
     def compile(self, source):
-        bytecode = self._make_bytecode(source)
+        bytecode = self._make_bytecode(source, self._template_locator)
 
         def inner(**local_scope):
             local_scope["_output"] = io.StringIO()
@@ -119,13 +145,13 @@ class Compiler:
 
             yield chunk
 
-    def _make_bytecode(self, source):
+    def _make_bytecode(self, source, template_locator):
         instructions = []
         symbol_table = {
             "write_func": io.StringIO.write
         }
 
-        parser = Parser()
+        parser = Parser(self._template_locator)
         sequence = parser.parse(self._get_chunks(source))
 
         for item in sequence.elements:

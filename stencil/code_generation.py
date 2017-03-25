@@ -134,14 +134,40 @@ class IfBlock:
 
 
 class ExtendsBlock:
-    def __init__(self):
+    def __init__(self, template):
+        self.template = template
         self.sequence = Sequence()
+
+    def make_bytecode(self, symbol_table):
+        inner = []
+
+        block_dict = {}
+        for entry in self.sequence.elements:
+            if isinstance(entry, ReplaceableBlock):
+                block_dict[entry.name] = entry.make_bytecode(symbol_table)
+
+        for entry in self.template.elements:
+            if isinstance(entry, ReplaceableBlock) \
+               and (entry.name in block_dict):
+                inner += block_dict[entry.name]
+            else:
+                inner += entry.make_bytecode(symbol_table)
+
+        return inner
 
 
 class ReplaceableBlock:
     def __init__(self, name):
         self.name = name
         self.sequence = Sequence()
+
+    def make_bytecode(self, symbol_table):
+        inner = []
+
+        for entry in self.sequence.elements:
+            inner += entry.make_bytecode(symbol_table)
+
+        return inner
 
 
 class VariableExpansion:
