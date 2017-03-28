@@ -97,38 +97,3 @@ class ParserTest(unittest.TestCase):
         self.assertIsInstance(node, ExtendsNode)
         self.assertEqual(node.template_name,
                          "other.html")
-
-    def test_extends(self):
-        template_locator = unittest.mock.MagicMock()
-        template_locator.find_template.return_value = "/wherever/other.html"
-
-        mock_file = io.StringIO("")
-
-        mock_open = unittest.mock.MagicMock(return_value=mock_file)
-
-        with unittest.mock.patch('builtins.open', mock_open):
-            parser = Parser(template_locator)
-
-            sequence = parser.parse([Execution('extends "other.html"'),
-                                     Execution("block title"),
-                                     Literal("My template"),
-                                     Execution("endblock")])
-
-        self.assertEqual(1,
-                         len(sequence.elements))
-        self.assertIsInstance(sequence.elements[0],
-                              ExtendsBlock)
-
-        # The template extends an empty template, so the inner
-        # template of the extends node is a single empty literal node.
-        self.assertEqual([Literal('')],
-                         sequence.elements[0].template.elements)
-
-        self.assertEqual(1,
-                         len(sequence.elements[0].sequence.elements))
-        self.assertIsInstance(sequence.elements[0].sequence.elements[0],
-                              ReplaceableBlock)
-
-
-if __name__ == '__main__':
-    unittest.main()
