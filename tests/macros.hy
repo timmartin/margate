@@ -22,3 +22,23 @@
                                    ~filename))
     )
   )
+
+(defmacro test-compiler [source args expectation]
+  (with-gensyms [compiler function]
+    `(do (setv ~compiler (Compiler))
+         (setv ~function (.compile ~compiler ~source))
+         (assert-equal ~expectation
+                       (apply ~function [] ~args)))))
+
+(defmacro test-compiler-mult [source cases]
+  "Test compiling a single template source against a number of
+  test cases."
+
+  (with-gensyms [func compiler]
+    (setv verifications
+          (list-comp `(do (assert-equal ~exp
+                                        (apply ~func [] ~args)))
+                     [[args exp] cases]))
+    `(do (setv ~compiler (Compiler))
+         (setv ~func (.compile ~compiler ~source))
+         ~@verifications)))
