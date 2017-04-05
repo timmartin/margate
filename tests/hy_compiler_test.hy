@@ -4,7 +4,7 @@
         unittest.mock
         [collections [namedtuple]])
 
-(import [stencil.compiler [Compiler]])
+(import [margate.compiler [Compiler]])
 
 (defclass HyCompilerTest [unittest.TestCase]
 

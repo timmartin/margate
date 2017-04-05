@@ -1,5 +1,5 @@
 """Run the same template through Django templates and through
-stencil, to give a crude performance comparison.
+margate, to give a crude performance comparison.
 
 """
 
@@ -7,7 +7,7 @@ import timeit
 
 from django.template import Context, Engine
 
-from stencil.compiler import Compiler
+from margate.compiler import Compiler
 
 expression = """
 Hello {{ name }}, I am a {{ whom }}
@@ -29,15 +29,15 @@ variables = {
 }
 
 compiler = Compiler()
-stencil_func = compiler.compile(expression)
+margate_func = compiler.compile(expression)
 
 engine = Engine()
 template = engine.from_string(expression)
 context = Context(variables)
 
 
-def stencil_render():
-    return stencil_func(**variables)
+def margate_render():
+    return margate_func(**variables)
 
 
 def django_render():
@@ -45,19 +45,19 @@ def django_render():
 
 
 def do_performance_test():
-    assert stencil_render() == django_render()
+    assert margate_render() == django_render()
 
     iterations = 1000
 
     time_for_django = timeit.timeit(django_render, number=iterations)
 
-    time_for_stencil = timeit.timeit(stencil_render, number=iterations)
+    time_for_margate = timeit.timeit(margate_render, number=iterations)
 
     print("Django took {time} microseconds".format(
         time=round(time_for_django / iterations * 1000 * 1000,
                    2)))
-    print("Stencil took {time} microseconds".format(
-        time=round(time_for_stencil / iterations * 1000 * 1000,
+    print("Margate took {time} microseconds".format(
+        time=round(time_for_margate / iterations * 1000 * 1000,
                    2)))
 
 

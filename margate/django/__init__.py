@@ -1,5 +1,5 @@
 """
-Code for interfacing Stencil with Django
+Code for interfacing Margate with Django
 """
 
 from django.template import TemplateDoesNotExist
@@ -7,16 +7,16 @@ from django.template.utils import get_app_template_dirs
 from django.template.loaders.filesystem import Loader as DjangoFileSystemLoader
 from django.template.backends.base import BaseEngine
 
-from stencil.compiler import Compiler
+from margate.compiler import Compiler
 
 
-class StencilLoader(DjangoFileSystemLoader):
+class MargateLoader(DjangoFileSystemLoader):
     def get_dirs(self):
-        return get_app_template_dirs('stencil')
+        return get_app_template_dirs('margate')
 
 
-class StencilEngine(BaseEngine):
-    app_dirname = "stencil"
+class MargateEngine(BaseEngine):
+    app_dirname = "margate"
 
     def __init__(self, params):
         params = params.copy()
@@ -26,9 +26,9 @@ class StencilEngine(BaseEngine):
         except KeyError:
             pass
 
-        super(StencilEngine, self).__init__(params)
+        super(MargateEngine, self).__init__(params)
 
-        self.loader = StencilLoader(self)
+        self.loader = MargateLoader(self)
         self.file_charset = 'utf-8'
         self.debug = False
         self.template_libraries = []

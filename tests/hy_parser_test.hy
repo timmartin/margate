@@ -10,8 +10,8 @@
         unittest.mock
         io)
 
-(import [stencil.compiler [Parser]]
-        [stencil.code-generation [Literal Sequence IfBlock
+(import [margate.compiler [Parser]]
+        [margate.code-generation [Literal Sequence IfBlock
                                   ForBlock ExtendsBlock ReplaceableBlock
                                   Execution]])
 

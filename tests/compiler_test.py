@@ -3,7 +3,7 @@ import unittest.mock
 import io
 from collections import namedtuple
 
-from stencil.compiler import Compiler
+from margate.compiler import Compiler
 
 
 class CompilerTest(unittest.TestCase):

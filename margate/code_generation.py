@@ -161,6 +161,13 @@ class ReplaceableBlock:
         self.name = name
         self.sequence = Sequence()
 
+    def __eq__(self, other):
+        if not isinstance(other, ReplaceableBlock):
+            return False
+
+        return (self.name == other.name) \
+            and (self.sequence == other.sequence)
+
     def make_bytecode(self, symbol_table):
         inner = []
 
