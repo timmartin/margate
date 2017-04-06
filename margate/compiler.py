@@ -129,6 +129,7 @@ class Compiler:
         self._template_locator = template_locator
 
     def compile(self, source):
+        """Compile the template source code into a callable function."""
         bytecode = self._make_bytecode(source, self._template_locator)
 
         def inner(**local_scope):

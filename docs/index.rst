@@ -6,6 +6,8 @@ Welcome to Margate's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   reference
+
 Introduction
 ------------
 
