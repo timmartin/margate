@@ -1,7 +1,3 @@
-.. Margate documentation master file, created by
-   sphinx-quickstart on Thu Apr  6 21:01:16 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Welcome to Margate's documentation!
 ===================================
@@ -10,6 +6,15 @@ Welcome to Margate's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+Introduction
+------------
+
+Margate is a templating engine for Python that compiles templates down
+to Python bytecode. It is mostly Django-compatible in spirit, though
+it falls short of being a drop-in replacement for Django templates.
+
+Early performance testing suggests that it is around 10 times faster
+than regular Django templates.
 
 
 Indices and tables
