@@ -8,5 +8,5 @@ install:
   - pip install -r test_requirements.txt
 
 script:
-  - flake8 stencil
+  - flake8 margate
   - nosetests
