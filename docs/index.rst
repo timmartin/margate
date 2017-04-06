@@ -16,6 +16,36 @@ it falls short of being a drop-in replacement for Django templates.
 Early performance testing suggests that it is around 10 times faster
 than regular Django templates.
 
+FAQ
+---
+
+Why oh why?
+'''''''''''
+
+Mostly to learn about Python bytecode.
+
+You don't really expect the speed benefit to be worth it, do you?
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Template rendering is extremely unlikely to be the bottleneck in your
+web application. Optimising it will at best save a constant overhead
+from each page view, and will have a proportionately lower impact on
+your slowest pages.
+
+On the other hand, it's free speed. It can probably save you a few
+milliseconds per page view, which might help when you're trying to get
+your landing page to load as fast as possible. Assuming the templating
+language has all the same features, why wouldn't you?
+
+What's with the name?
+'''''''''''''''''''''
+
+The library was originally called Stencil, but it turns out that lots
+of people call their templating library Stencil, so I had to change.
+
+I hate spending time thinking of names for projects, so when I get
+stuck I just use the name of an English seaside town. There are plenty
+of them and they are reasonably unique and memorable names.
 
 Indices and tables
 ==================
