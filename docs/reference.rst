@@ -21,3 +21,24 @@ Code generation
 
 .. autoclass:: Sequence
    :members:
+
+.. autoclass:: ForBlock
+   :members:
+
+.. autoclass:: IfBlock
+   :members:
+
+.. autoclass:: ExtendsBlock
+   :members:
+
+.. autoclass:: ReplaceableBlock
+   :members:
+
+.. autoclass:: VariableExpansion
+   :members:
+
+.. autoclass:: Literal
+   :members:
+
+.. autoclass:: Execution
+   :members:

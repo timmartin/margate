@@ -1,12 +1,20 @@
 """This module contains the building blocks of the final template
 function, in the form of bytecode generators.
 
+There are a series of classes in here that are used as nodes in the
+code generation tree, and each one implements a ``make_bytecode()``
+method.
+
 """
 
 from bytecode import Instr, Label, ConcreteBytecode
 
 
 class Sequence:
+    """A sequence of nodes that occur in a parse tree. Elements in the
+    sequence can themselves be sequences (thus forming a tree).
+    """
+
     def __init__(self):
         self.elements = []
 
