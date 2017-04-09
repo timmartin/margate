@@ -40,6 +40,8 @@ class Parser:
         self._sub_template_locator = _get_related_template
 
     def parse(self, tokens):
+        """Parse a token sequence into a sequence object."""
+
         sequence = code_generation.Sequence()
 
         self._parse_into_sequence(sequence, tokens)
@@ -113,11 +115,17 @@ class Parser:
 
 
 class TemplateLocator:
+    """The template locator abstracts the details of locating templates
+    when one template extends another (such as with the ``{% extends %}``
+    tag)self.
+    """
+
     def find_template(self, template_name):
         pass
 
 
 class Compiler:
+
     """The Compiler takes a template in string form and returns bytecode
     that implements the template.
     """
@@ -129,7 +137,11 @@ class Compiler:
         self._template_locator = template_locator
 
     def compile(self, source):
-        """Compile the template source code into a callable function."""
+        """Compile the template source code into a callable function.
+
+        :return: A callable function that returns rendered content as
+          a string when called.
+        """
         bytecode = self._make_bytecode(source, self._template_locator)
 
         def inner(**local_scope):

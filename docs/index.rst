@@ -18,6 +18,26 @@ it falls short of being a drop-in replacement for Django templates.
 Early performance testing suggests that it is around 10 times faster
 than regular Django templates.
 
+Example
+-------
+
+Simply instantiate a :py:class:`~margate.compiler.Compiler` and call
+its :py:meth:`~margate.compiler.Compiler.compile()` method with the
+template source::
+
+  template_source = """
+  <p>Hello {{ person }}, my name is {{ me }}
+  """
+
+  compiler = margate.compiler.Compiler()
+  template_function = compiler.compile(template_source)
+
+You now have a function that can be called to yield the rendered
+content. Pass variable values in keyword arguments::
+
+  print(template_function(person="alice",
+                          me="a template"))
+
 FAQ
 ---
 
@@ -37,7 +57,10 @@ your slowest pages.
 On the other hand, it's free speed. It can probably save you a few
 milliseconds per page view, which might help when you're trying to get
 your landing page to load as fast as possible. Assuming the templating
-language has all the same features, why wouldn't you?
+language has all the same features, why wouldn't you? Template
+expansion probably can't be parallelised with anything else your web
+app is doing, so miliseconds here contribute directly to the bottom
+line.
 
 What's with the name?
 '''''''''''''''''''''
