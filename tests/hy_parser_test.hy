@@ -10,7 +10,7 @@
         unittest.mock
         io)
 
-(import [margate.compiler [Parser]]
+(import [margate.parser [Parser]]
         [margate.code-generation [Literal Sequence IfBlock
                                   ForBlock ExtendsBlock ReplaceableBlock
                                   Execution]])

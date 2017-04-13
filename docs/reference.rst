@@ -8,7 +8,7 @@ steps:
   code execution) that are treated differently. This is handled by
   :py:mod:`the block parser <margate.block_parser>`.
 * The resultant sequence of blocks is passed to the
-  :py:class:`~margate.compiler.Parser` to be turned into a parse tree.
+  :py:class:`~margate.parser.Parser` to be turned into a parse tree.
 * The parse tree is processed by :py:mod:`code generation
   <margate.code_generation>` to make Python bytecode.
 
@@ -18,9 +18,6 @@ Compiler
 .. automodule:: margate.compiler
 
 .. autoclass:: Compiler
-   :members:
-
-.. autoclass:: Parser
    :members:
 
 .. autoclass:: TemplateLocator
@@ -72,5 +69,8 @@ Parser
 ------
 
 .. automodule:: margate.parser
+
+.. autoclass:: Parser
+   :members:
 
 .. autofunction:: parse_expression

@@ -3,8 +3,8 @@ import unittest.mock
 import ast
 import io
 
-from margate.parser import parse_expression, IfNode, ForNode, ExtendsNode
-from margate.compiler import Parser
+from margate.parser import (Parser, parse_expression, IfNode, ForNode,
+                            ExtendsNode)
 from margate.code_generation import (Literal, Sequence, IfBlock,
                                      ForBlock, ExtendsBlock, ReplaceableBlock,
                                      Execution)
