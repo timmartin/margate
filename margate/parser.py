@@ -2,8 +2,9 @@
 form.
 
 There are two layers to the parsing: breaking the template down into
-blocks, and parsing the expressions that appear in the execution
-blocks within the template.
+blocks (which is done by the :py:mod:`~margate.block_parser` module),
+and parsing the expressions that appear in the execution blocks within
+the template.
 
 """
 

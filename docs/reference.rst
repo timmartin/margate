@@ -42,3 +42,13 @@ Code generation
 
 .. autoclass:: Execution
    :members:
+
+Block parser
+------------
+
+.. automodule:: margate.block_parser
+
+Parser
+------
+
+.. automodule:: margate.parser

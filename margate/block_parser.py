@@ -1,3 +1,18 @@
+"""The block parser splits a template into the blocks that make it
+up. There are three different sorts of data in a template that get
+handled in different ways:
+
+* Literal text, which just gets embedded in the output (but may be
+  skipped or repeated by executing code around it).
+* Executable code
+* Embedded variable expressions that get expanded into text output.
+
+It's implemented as a state machine, where the template starts out in
+literal text and transitions to a different state depending on whether
+it encounters ``{{``, ``}}``, ``{%`` or ``%}``.
+
+"""
+
 from . import code_generation
 
 
