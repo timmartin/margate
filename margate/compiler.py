@@ -1,5 +1,5 @@
-"""
-Compiler
+"""The compiler module contains the public interface to the library.
+
 """
 
 import re
@@ -125,7 +125,6 @@ class TemplateLocator:
 
 
 class Compiler:
-
     """The Compiler takes a template in string form and returns bytecode
     that implements the template.
     """

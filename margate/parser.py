@@ -6,6 +6,15 @@ blocks (which is done by the :py:mod:`~margate.block_parser` module),
 and parsing the expressions that appear in the execution blocks within
 the template.
 
+The parser in this module uses a combination of ad hoc parsing,
+`funcparserlib <https://pypi.python.org/pypi/funcparserlib>`_ and
+`ast.parse
+<https://docs.python.org/3/library/ast.html#ast.parse>`_. The
+top-level rules in the language (``if``, ``for``, ``endif`` etc.) are
+handled ad hoc since they are not recursive. However, the expression
+that is given as an argument to ``if`` is an arbitrary expression and
+parsed
+
 """
 
 import re

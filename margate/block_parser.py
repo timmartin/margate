@@ -79,6 +79,10 @@ class ExecutionState:
 
 
 class ExpressionState:
+    """Expression state occurs when processing a ``{{ ... }}`` expression
+    that embeds the value of an expression into the output.
+
+    """
     def __init__(self, text):
         self.text = text
 
