@@ -35,10 +35,15 @@ class UnsupportedElementException(Exception):
 
 
 def parse_expression(expression):
-    """
-    Parse an expression that appears in an execution node.
+    """Parse an expression that appears in an execution node, i.e. a
+    block delimited by ``{% %}``.
+
+    This can be a compound expression like a ``for`` statement with
+    several sub-expressions, or it can just be a single statement such
+    as ``endif``.
 
     :param list expression: Tokenised expression.
+
     """
     from funcparserlib.parser import a, skip, some
 
@@ -94,7 +99,7 @@ class Parser:
 
     The input is in the form of a flat list of atomic elements of the
     template, where literal text (of any length) is a single element,
-    and a {% %} or {{ }} expression is a single element.
+    and a ``{% %}`` or ``{{ }}`` expression is a single element.
 
     Figuring out nesting of starting and ending of loops happens
     within the parser.
@@ -114,7 +119,10 @@ class Parser:
         self._sub_template_locator = _get_related_template
 
     def parse(self, tokens):
-        """Parse a token sequence into a sequence object."""
+        """Parse a token sequence into a
+        :py:class:`~margate.code_generation.Sequence` object.
+
+        """
 
         sequence = code_generation.Sequence()
 
