@@ -6,6 +6,7 @@ Welcome to Margate's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   django
    todo_list
    reference
 
