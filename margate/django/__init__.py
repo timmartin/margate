@@ -33,11 +33,17 @@ class MargateEngine(BaseEngine):
         self.debug = False
         self.template_libraries = []
         self.template_builtins = []
+        self.cache = {}
 
     def get_template(self, template_name):
-        compiler = Compiler()
-        template_func = compiler.compile(self.find_template(template_name))
-        return Template(template_func)
+        if template_name in self.cache:
+            return self.cache[template_name]
+        else:
+            compiler = Compiler()
+            template_func = compiler.compile(self.find_template(template_name))
+            template = Template(template_func)
+            self.cache[template_name] = template
+            return template
 
     def find_template(self, name):
         tried = []
