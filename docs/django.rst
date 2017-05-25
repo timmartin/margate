@@ -42,9 +42,3 @@ To enable Margate in Django, simply add it to the ``TEMPLATES`` in
     }
   ]
 
-Limitations
------------
-  
-Currently templates are compiled on-demand and discarded immediately
-afterwards rather than being cached. This means that there is unlikely
-to be any speed advantage to using Margate in a Django app.
