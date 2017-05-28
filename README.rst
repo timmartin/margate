@@ -16,8 +16,7 @@ Currently Margate supports the following:
 * ``extends`` nodes and ``block`` nodes that can be overridden in
   extending templates
 * Arbitrary nesting of the above (though this isn't well tested yet)
-* Embedding variable values in output (but without the ability to
-  derefence variables or navigate collections)
+* Embedding expression values in output
 
 Operation
 ---------

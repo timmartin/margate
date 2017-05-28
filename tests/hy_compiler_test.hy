@@ -60,5 +60,11 @@
     (test-compiler "member: {{ employee.name }}"
                    {:employee (Employee "alice")}
                    "member: alice"))
+
+  (defn test-dict-member [self]
+    (test-compiler "value: {{ data['first'] }}"
+                   {:data {"first" 12
+                           "second" 3}}
+                   "value: 12"))
   
   )
