@@ -3,7 +3,7 @@ version: 0.1
 phases:
   pre_build:
     commands:
-      - pip install sphinx
+      - apt-get install sphinx-doc
   build:
     commands:
       - "cd docs && make html"
