@@ -6,4 +6,4 @@ phases:
       - pip install sphinx
   build:
     commands:
-      - "cd docs && sphinx-build"
+      - "cd docs && make html"
