@@ -1,3 +1,9 @@
+I originally wrote Margate as an exercise in learning about Python
+bytecode, but I released it in case it was somewhat useful. However,
+after releasing it I discovered that Jinja2 also includes a bytecode
+generator, so probably makes this obsolete for any practical
+purposes. I'm not actively maintaining this project any more.
+
 Margate
 =======
 
